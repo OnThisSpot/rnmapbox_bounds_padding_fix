@@ -517,12 +517,16 @@ open class RNMBXCamera : RNMBXMapAndMapViewComponentBase {
       
       withMapView { map in
         let bounds = [sw, ne]
-
-        camera = map.mapboxMap.camera(
+        camera = try? map.mapboxMap.camera(
           for: bounds,
-          padding: padding,
-          bearing: heading ?? map.mapboxMap.cameraState.bearing,
-          pitch: pitch ?? map.mapboxMap.cameraState.pitch
+          camera: CameraOptions(
+            padding: padding,
+            bearing: heading ?? map.mapboxMap.cameraState.bearing,
+            pitch: pitch ?? map.mapboxMap.cameraState.pitch
+          ),
+          coordinatesPadding: .zero,
+          maxZoom: nil,
+          offset: nil
         )
       }
     } else {

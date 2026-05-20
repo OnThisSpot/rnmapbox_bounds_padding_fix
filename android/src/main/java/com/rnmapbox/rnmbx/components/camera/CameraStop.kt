@@ -126,19 +126,28 @@ class CameraStop {
         } else if (mBounds != null) {
             val tilt = if (mTilt != null) mTilt!! else currentCamera.pitch
             val bearing = if (mBearing != null) mBearing!! else currentCamera.bearing
-
-            val boundsCamera = map.cameraForCoordinateBounds(
-                mBounds!!.toBounds(),
-                cameraPaddingEdgeInsets,
-                bearing,
-                tilt
+            val points = listOf(
+                com.mapbox.geojson.Point.fromLngLat(mBounds!!.lonWest, mBounds!!.latSouth),
+                com.mapbox.geojson.Point.fromLngLat(mBounds!!.lonEast, mBounds!!.latNorth)
             )
+            val boundsCamera = map.cameraForCoordinates(
+                coordinates = points,
+                camera = CameraOptions.Builder()
+                    .padding(cameraPaddingEdgeInsets)
+                    .bearing(bearing)
+                    .pitch(tilt)
+                    .build(),
+                coordinatesPadding = EdgeInsets(0.0, 0.0, 0.0, 0.0),
+                maxZoom = null,
+                offset = null
+            )
+            // 3. Apply the calculated options cleanly
             builder.center(boundsCamera.center)
             builder.anchor(boundsCamera.anchor)
             builder.zoom(boundsCamera.zoom)
             builder.bearing(boundsCamera.bearing)
             builder.pitch(boundsCamera.pitch)
-            builder.padding(boundsCamera.padding)
+            builder.padding(boundsCamera.padding) // Now this contains the target padding correctly!
         }
 
         return CameraUpdateItem(map, builder.build(), mDuration, mCallback, mMode)
